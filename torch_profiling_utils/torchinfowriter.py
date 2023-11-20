@@ -32,7 +32,7 @@ from torch import nn
 import pydot
 from fvcore.nn import FlopCountAnalysis, ActivationCountAnalysis
 from torchinfo import summary
-from bigtree import Node, tree_to_dataframe, tree_to_dot
+from bigtree import Node, find_attrs, tree_to_dataframe, tree_to_dot
 from bigtree.tree.search import find_child_by_name
 
 
@@ -94,7 +94,8 @@ class TorchinfoWriter():
 
             trainable = True if layer_info.trainable == 'True' else False
 
-            if (not layer_info.is_recursive) and trainable:
+            # if (not layer_info.is_recursive) and trainable:
+            if not layer_info.is_recursive:
                 self._nodes_at_level[layer_info.depth].append(
                                 Node.from_dict({'name': name,
                                                     'Type': type_,
@@ -118,6 +119,8 @@ class TorchinfoWriter():
                                 self._nodes_at_level[layer_info.depth - 1][-1]
 
                 postfixes_at_level[layer_info.depth][name] += 1
+
+        self._remove_non_trainable_leaf_nodes()
 
         self._initialized = True
 
@@ -204,3 +207,23 @@ class TorchinfoWriter():
         type_ = parts[0]
         name = parts[1][:-1]
         return name, type_
+
+    
+    def _remove_non_trainable_leaf_nodes(self) -> None:
+
+        non_trainable_leaf_nodes =\
+            find_attrs(self._nodes_at_level[0][0],
+                                        'Parameters', 0)
+
+        # Check if items can be found
+        nodes_to_remove = []
+
+        for node in non_trainable_leaf_nodes:
+            if not len(node.children):
+                nodes_to_remove.append(node)
+
+        # Remove items
+        for node in nodes_to_remove:
+            node.parent = None
+
+
