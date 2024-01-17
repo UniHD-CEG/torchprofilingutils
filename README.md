@@ -1,3 +1,6 @@
+Please note that this is an anonymized version of the code presented in the paper "STRADA: Resource-Efficient Time-Series Anomaly Detection in Dynamically-Configured Systems". Any copyright notices identifying the authors or their organization have been redacted for the double-blind peer review. We are kindly asking the reviewers receiving this code to refrain from sharing it with non-reviewers.
+
+
 # Torch Profiling Utils
 This module contains two classes that simplify profiling Torch models using the [fvcore](https://github.com/facebookresearch/fvcore/tree/main) and [torchinfo](https://github.com/TylerYep/torchinfo) modules.
 I designed the wrapper classes `FVCoreWriter` and `TorchinfoWriter` contained in this module around my profiling workflow and am sharing them in hopes that they may be useful for other group members.
