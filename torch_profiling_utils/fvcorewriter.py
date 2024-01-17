@@ -30,6 +30,9 @@ from torch import finfo, iinfo, is_floating_point
 from torch import dtype as tdt
 from fvcore.nn import FlopCountAnalysis, ActivationCountAnalysis
 
+from .gru_op_handlers import _gru_op_flops_handler,\
+                                _gru_op_acts_handler
+
 try:
     from math import prod
 except ImportError:
@@ -101,7 +104,6 @@ def _cumsum_op_handler(inputs: List[Any], outputs: List[Any]) -> Number:
 
     return ops
 
-
 class FVCoreWriter():
 
     def __init__(self,
@@ -128,11 +130,13 @@ class FVCoreWriter():
                                             .set_op_handle('aten::div', _add_sub_mul_div_op_handler)\
                                             .set_op_handle('aten::sum', _sum_op_handler)\
                                             .set_op_handle('aten::mean', _mean_op_handler)\
-                                            .set_op_handle('aten::cumsum', _cumsum_op_handler)
+                                            .set_op_handle('aten::cumsum', _cumsum_op_handler)\
+                                            .set_op_handle('aten::gru', _gru_op_flops_handler)
 
         self._activation_count_analysis =\
                     ActivationCountAnalysis(model,
-                                            inputs)
+                                            inputs)\
+                                                .set_op_handle('aten::gru', _gru_op_acts_handler)
 
         self._initialized = True
 
